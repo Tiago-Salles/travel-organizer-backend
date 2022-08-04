@@ -1,10 +1,23 @@
 package main
 
 import (
+	"context"
 	"net/http"
+	"time"
 
 	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+func startDataBase() {
+	context, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	client, err := mongo.Connect(context, options.Client().ApplyURI("mongodb://localhost:27017"))
+	if err = client.Disconnect(context); err != nil {
+		panic(err)
+	}
+}
 
 type TravelModel struct {
 	Country string `json:"country"`
@@ -31,5 +44,6 @@ func runApp() {
 }
 
 func main() {
+	defer startDataBase()
 	runApp()
 }
